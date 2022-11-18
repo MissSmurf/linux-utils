@@ -67,6 +67,19 @@ void scanf_flags (int argc, char **argv, flag *flags) {
         flags->e_endstr = 0;
 }
 
+int cat (flag *flags) {
+    int lenght;
+    FILE *file;
+    char buffer[100];
+    file = fopen(, "r");
+    while(!feof(file)) {
+        fscanf(file,"%s", buffer);
+		lenght = (strlen(buffer));
+        printf("%c", buffer);
+    }
+    fclose(file);
+}
+
 void delete_flag (flag *flags) {
     for (int i = 0; i < flags->count; i++) {
         free(flags->files[i]);
@@ -96,4 +109,3 @@ int main (int argc, char **argv) {
     }
     return 0;
 }
-
