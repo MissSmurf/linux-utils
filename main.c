@@ -67,18 +67,21 @@ void scanf_flags (int argc, char **argv, flag *flags) {
         flags->e_endstr = 0;
 }
 
-int cat (flag *flags) {
-    int lenght;
+void cat (flag *flags) {
+    int charecter = 0;
     FILE *file;
-    char buffer[100];
-    file = fopen(, "r");
-    while(!feof(file)) {
-        fscanf(file,"%s", buffer);
-		lenght = (strlen(buffer));
-        printf("%c", buffer);
+    for (int i = 0; i < flags->count; i++) {
+        file = fopen(flags->files[i], "r");
+        if (file == NULL)
+            continue;
+        while (charecter != EOF) {
+            printf("%c", charecter);
+            charecter = fgetc(file);
+        }
+        fclose(file);
     }
-    fclose(file);
 }
+
 
 void delete_flag (flag *flags) {
     for (int i = 0; i < flags->count; i++) {
@@ -92,9 +95,9 @@ int main (int argc, char **argv) {
     if (argc > 1) {
         init_flags (&flags);
         scanf_flags(argc, argv, &flags);
-
+        cat(&flags);
         //вывод работают ли флаги
-        printf("b %d n %d s %d e %d t %d v %d", flags.b_number_nonblank, flags.n_number, 
+        printf("\nb %d n %d s %d e %d t %d v %d", flags.b_number_nonblank, flags.n_number, 
         flags.s__squeeze_blank, flags.e_endstr, flags.t_tabuleshen, flags.v);
         int i = 0;
         if (flags.files) {
