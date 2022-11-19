@@ -74,18 +74,29 @@ void cat (flag *flags) {
         file = fopen(flags->files[i], "r");
         if (file == NULL)
             continue;
+        int line_count = 1;
+        char prev_char = 0;
         while (charecter != EOF) {
-            printf("%c", charecter);
+            prev_char = charecter != 0 ? charecter : 0;
             charecter = fgetc(file);
+            // ФЛАГ -n
+            if (flags->n_number && (charecter == 0 || charecter == '\n')) {
+                printf("%d  ", line_count);
+                line_count++;
+            }
+            // ФЛАГ -b
+            if (flags->b_number_nonblank && (charecter == 0 || charecter == '\n')) {
+                if (fgetc(file) != '\n') {
+                    printf("%d  ", line_count);
+                    line_count++;
+                }
+            }
+            printf("%c", charecter);
         }
         fclose(file);
     }
 }
 
-void flag_b(flag *flags) {
-    cat(&flags);
-    
-}
 
 void delete_flag (flag *flags) {
     for (int i = 0; i < flags->count; i++) {
