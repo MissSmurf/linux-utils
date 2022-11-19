@@ -82,6 +82,10 @@ void cat (flag *flags) {
     }
 }
 
+void flag_b(flag *flags) {
+    cat(&flags);
+    
+}
 
 void delete_flag (flag *flags) {
     for (int i = 0; i < flags->count; i++) {
