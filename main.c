@@ -32,11 +32,11 @@ int is_flag(char *str) {
 
 void scanf_flags (int argc, char **argv, flag *flags) {
     for (int i = 1; i < argc; i++) {
-        if (!strcmp(argv[i], "-b"))
+        if ((!strcmp(argv[i], "-b")) || (!strcmp(argv[i], "--number-nonblank")))
             flags->b_number_nonblank = 1;
-        else if (!strcmp(argv[i], "-n"))
+        else if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--number"))
             flags->n_number = 1;
-        else if (!strcmp(argv[i], "-s"))
+        else if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--squeeze-blank"))
             flags->s__squeeze_blank = 1;
         else if (!strcmp(argv[i], "-E")) {
             flags->e_endstr = 1;
@@ -68,30 +68,39 @@ void scanf_flags (int argc, char **argv, flag *flags) {
 }
 
 void cat (flag *flags) {
-    int charecter = 0;
+    int charecter = 0, line_count = 1;
     FILE *file;
     for (int i = 0; i < flags->count; i++) {
         file = fopen(flags->files[i], "r");
         if (file == NULL)
             continue;
-        int line_count = 1;
         char prev_char = 0;
         while (charecter != EOF) {
             prev_char = charecter != 0 ? charecter : 0;
-            charecter = fgetc(file);
+            printf("%c", charecter);
             // ФЛАГ -n
             if (flags->n_number && (charecter == 0 || charecter == '\n')) {
                 printf("%d  ", line_count);
                 line_count++;
             }
+            charecter = fgetc(file);
             // ФЛАГ -b
-            if (flags->b_number_nonblank && (charecter == 0 || charecter == '\n')) {
-                if (fgetc(file) != '\n') {
+            if (flags->b_number_nonblank && (prev_char == 0 || prev_char == '\n')) {
+                if (charecter != '\n') {
                     printf("%d  ", line_count);
                     line_count++;
                 }
             }
-            printf("%c", charecter);
+            // ФЛАГ -e
+            if (flags->e_endstr && charecter == '\n')
+                printf("$");
+
+            // ФЛАГ -t
+            if (flags->t_tabuleshen && charecter == ' ') {
+                charecter = 0;
+                printf("^I");
+            }
+
         }
         fclose(file);
     }
@@ -116,8 +125,7 @@ int main (int argc, char **argv) {
         flags.s__squeeze_blank, flags.e_endstr, flags.t_tabuleshen, flags.v);
         int i = 0;
         if (flags.files) {
-            while (i < flags.count && flags.files[i])
-            {
+            while (i < flags.count && flags.files[i]) {
                 printf("\n%s\n", flags.files[i]);
                 i++;
             }
