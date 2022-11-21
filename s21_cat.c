@@ -1,18 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-
-typedef struct flg {
-    int b_number_nonblank, 
-        n_number, 
-        s_squeeze_blank, 
-        e_endstr, 
-        t_tabuleshen, 
-        v, 
-        count;
-    char **files;
-} flag;
+#include "s21_cat.h"
 
 void init_flags(flag *f) {
     f->b_number_nonblank = 0;
@@ -27,16 +13,17 @@ void init_flags(flag *f) {
 
 int is_flag(char *str) {
     return ((!strcmp(str, "-b")) || (!strcmp(str, "-n")) || (!strcmp(str, "-s")) || (!strcmp(str, "-E")) 
-    || (!strcmp(str, "-e")) || (!strcmp(str, "-T")) || (!strcmp(str, "-t")) || (!strcmp(str, "-v")));
+    || (!strcmp(str, "-e")) || (!strcmp(str, "-T")) || (!strcmp(str, "-t")) || (!strcmp(str, "-v"))
+    || (!strcmp(str, "--number-nonblank")) || (!strcmp(str, "--number")) || (!strcmp(str, "--squeeze-blank")));
 }
 
 void scanf_flags (int argc, char **argv, flag *flags) {
     for (int i = 1; i < argc; i++) {
         if ((!strcmp(argv[i], "-b")) || (!strcmp(argv[i], "--number-nonblank")))
             flags->b_number_nonblank = 1;
-        else if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--number"))
+        else if (!strcmp(argv[i], "-n") || (!strcmp(argv[i], "--number")))
             flags->n_number = 1;
-        else if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--squeeze-blank"))
+        else if (!strcmp(argv[i], "-s") || (!strcmp(argv[i], "--squeeze-blank")))
             flags->s_squeeze_blank = 1;
         else if (!strcmp(argv[i], "-E")) {
             flags->e_endstr = 1;
@@ -68,9 +55,9 @@ void scanf_flags (int argc, char **argv, flag *flags) {
 }
 
 void cat (flag *flags) {
-    int charecter = 0, line_count = 1;
     FILE *file;
     for (int i = 0; i < flags->count; i++) {
+        int charecter = 0, line_count = 1;
         file = fopen(flags->files[i], "r");
         if (file == NULL)
             continue;
@@ -94,11 +81,12 @@ void cat (flag *flags) {
             // ФЛАГ -e
             if (flags->e_endstr && charecter == '\n')
                 printf("$");
-            // ФЛАГ -t (Нудно проверить как это работает на маке и поправить)
+            // ФЛАГ -t (Нужно проверить как это работает на маке и поправить)
             if (flags->t_tabuleshen && charecter == ' ') {
                 charecter = 0;
                 printf("^I");
             }
+            // ФЛАГ -s
             if (flags->s_squeeze_blank && (prev_char == 0 || prev_char == '\n')) {
                 if (charecter == '\n')
                     charecter = 0;
@@ -126,8 +114,8 @@ int main (int argc, char **argv) {
         //вывод работают ли флаги
         printf("\nb %d n %d s %d e %d t %d v %d", flags.b_number_nonblank, flags.n_number, 
         flags.s_squeeze_blank, flags.e_endstr, flags.t_tabuleshen, flags.v);
-        int i = 0;
         if (flags.files) {
+            int i = 0;
             while (i < flags.count && flags.files[i]) {
                 printf("\n%s\n", flags.files[i]);
                 i++;
