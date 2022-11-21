@@ -6,7 +6,7 @@
 typedef struct flg {
     int b_number_nonblank, 
         n_number, 
-        s__squeeze_blank, 
+        s_squeeze_blank, 
         e_endstr, 
         t_tabuleshen, 
         v, 
@@ -17,7 +17,7 @@ typedef struct flg {
 void init_flags(flag *f) {
     f->b_number_nonblank = 0;
     f->n_number = 0;
-    f->s__squeeze_blank = 0;
+    f->s_squeeze_blank = 0;
     f->e_endstr = 0;
     f->t_tabuleshen = 0;
     f->v = 0;
@@ -37,7 +37,7 @@ void scanf_flags (int argc, char **argv, flag *flags) {
         else if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--number"))
             flags->n_number = 1;
         else if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--squeeze-blank"))
-            flags->s__squeeze_blank = 1;
+            flags->s_squeeze_blank = 1;
         else if (!strcmp(argv[i], "-E")) {
             flags->e_endstr = 1;
             flags->v = 1; }
@@ -94,18 +94,21 @@ void cat (flag *flags) {
             // ФЛАГ -e
             if (flags->e_endstr && charecter == '\n')
                 printf("$");
-
-            // ФЛАГ -t
+            // ФЛАГ -t (Нудно проверить как это работает на маке и поправить)
             if (flags->t_tabuleshen && charecter == ' ') {
                 charecter = 0;
                 printf("^I");
             }
-
+            if (flags->s_squeeze_blank && (prev_char == 0 || prev_char == '\n')) {
+                if (charecter == '\n')
+                    charecter = 0;
+                if (prev_char != 0) 
+                    printf("\n");
+            }
         }
         fclose(file);
     }
 }
-
 
 void delete_flag (flag *flags) {
     for (int i = 0; i < flags->count; i++) {
@@ -122,7 +125,7 @@ int main (int argc, char **argv) {
         cat(&flags);
         //вывод работают ли флаги
         printf("\nb %d n %d s %d e %d t %d v %d", flags.b_number_nonblank, flags.n_number, 
-        flags.s__squeeze_blank, flags.e_endstr, flags.t_tabuleshen, flags.v);
+        flags.s_squeeze_blank, flags.e_endstr, flags.t_tabuleshen, flags.v);
         int i = 0;
         if (flags.files) {
             while (i < flags.count && flags.files[i]) {
