@@ -1,4 +1,5 @@
 #include "s21_cat.h"
+//Дописать флаг -v
 
 void init_flags(flag *f) {
     f->b_number_nonblank = 0;
@@ -23,17 +24,11 @@ void scanf_flags (int argc, char **argv, flag *flags) {
             flags->b_number_nonblank = 1;
         else if (!strcmp(argv[i], "-n") || (!strcmp(argv[i], "--number")))
             flags->n_number = 1;
-        else if (!strcmp(argv[i], "-s") || (!strcmp(argv[i], "--squeeze-blank")))
+        else if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--squeeze-blank"))
             flags->s_squeeze_blank = 1;
-        else if (!strcmp(argv[i], "-E")) {
+        else if (!strcmp(argv[i], "-E")|| !strcmp(argv[i], "-e"))
             flags->e_endstr = 1;
-            flags->v = 1; }
-        else if (!strcmp(argv[i], "-e"))
-            flags->e_endstr = 1;
-        else if (!strcmp(argv[i], "-T")) {
-            flags->t_tabuleshen = 1;
-            flags->v = 1; }
-        else if (!strcmp(argv[i], "-t")) 
+        else if (!strcmp(argv[i], "-T") || !strcmp(argv[i], "-t"))
             flags->t_tabuleshen = 1;
         else if (!strcmp(argv[i], "-v"))
             flags->v = 1;
@@ -48,10 +43,6 @@ void scanf_flags (int argc, char **argv, flag *flags) {
             flags->count++;
         }
     }
-    if (flags->t_tabuleshen == 1 && flags->v == 0)
-        flags->t_tabuleshen = 0;
-    if (flags->e_endstr == 1 && flags->v == 0)
-        flags->e_endstr = 0;
 }
 
 void cat (flag *flags) {
@@ -62,27 +53,24 @@ void cat (flag *flags) {
         if (file == NULL)
             continue;
         char prev_char = 0;
-        while (charecter != EOF) {
-            prev_char = charecter != 0 ? charecter : 0;
-            printf("%c", charecter);
+        while ((charecter = fgetc(file)) != EOF) {
             // ФЛАГ -n
-            if (flags->n_number && (charecter == 0 || charecter == '\n')) {
-                printf("%d  ", line_count);
+            if (flags->n_number && (prev_char == 0 || prev_char == '\n')) {
+                printf("%6d  ", line_count);
                 line_count++;
             }
-            charecter = fgetc(file);
             // ФЛАГ -b
             if (flags->b_number_nonblank && (prev_char == 0 || prev_char == '\n')) {
                 if (charecter != '\n') {
-                    printf("%d  ", line_count);
+                    printf("%6d  ", line_count);
                     line_count++;
                 }
             }
             // ФЛАГ -e
             if (flags->e_endstr && charecter == '\n')
                 printf("$");
-            // ФЛАГ -t (Нужно проверить как это работает на маке и поправить)
-            if (flags->t_tabuleshen && charecter == ' ') {
+            // ФЛАГ -t
+            if (flags->t_tabuleshen && charecter == '\t') {
                 charecter = 0;
                 printf("^I");
             }
@@ -93,6 +81,8 @@ void cat (flag *flags) {
                 if (prev_char != 0) 
                     printf("\n");
             }
+            prev_char = charecter != 0 ? charecter : 0;
+            printf("%c", charecter);
         }
         fclose(file);
     }
@@ -112,6 +102,7 @@ int main (int argc, char **argv) {
         scanf_flags(argc, argv, &flags);
         cat(&flags);
         //вывод работают ли флаги
+        /*
         printf("\nb %d n %d s %d e %d t %d v %d", flags.b_number_nonblank, flags.n_number, 
         flags.s_squeeze_blank, flags.e_endstr, flags.t_tabuleshen, flags.v);
         if (flags.files) {
@@ -121,7 +112,7 @@ int main (int argc, char **argv) {
                 i++;
             }
         }
-        //
+        *///
         delete_flag(&flags);
     }
     return 0;
