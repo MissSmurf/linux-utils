@@ -18,7 +18,7 @@ int is_flag(char *str) {
     || (!strcmp(str, "--number-nonblank")) || (!strcmp(str, "--number")) || (!strcmp(str, "--squeeze-blank")));
 }
 
-void scanf_flags (int argc, char **argv, flag *flags) {
+void scanf_flags(int argc, char **argv, flag *flags) {
     for (int i = 1; i < argc; i++) {
         if ((!strcmp(argv[i], "-b")) || (!strcmp(argv[i], "--number-nonblank")))
             flags->b_number_nonblank = 1;
@@ -26,7 +26,7 @@ void scanf_flags (int argc, char **argv, flag *flags) {
             flags->n_number = 1;
         else if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--squeeze-blank"))
             flags->s_squeeze_blank = 1;
-        else if (!strcmp(argv[i], "-E")|| !strcmp(argv[i], "-e"))
+        else if (!strcmp(argv[i], "-E") || !strcmp(argv[i], "-e"))
             flags->e_endstr = 1;
         else if (!strcmp(argv[i], "-T") || !strcmp(argv[i], "-t"))
             flags->t_tabuleshen = 1;
@@ -42,10 +42,12 @@ void scanf_flags (int argc, char **argv, flag *flags) {
             strcpy(flags->files[flags->count], argv[j]);
             flags->count++;
         }
+        if (flags->n_number == 1 && flags->b_number_nonblank == 1)
+            flags->n_number = 0;
     }
 }
 
-void cat (flag *flags) {
+void cat(flag *flags) {
     FILE *file;
     for (int i = 0; i < flags->count; i++) {
         int charecter = 0, line_count = 1;
