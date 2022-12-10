@@ -5,4 +5,11 @@
 #include <unistd.h>
 #include <string.h>
 
+typedef struct flg {
+    int e_patterns, 
+        c_count,
+        count;
+    char **files;
+} flag;
+
 #endif
