@@ -1,6 +1,7 @@
 #ifndef S21_CAT_H_
 #define S21_CAT_H_
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>

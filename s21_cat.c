@@ -55,6 +55,7 @@ void cat(flag *flags) {
         if (file == NULL)
             continue;
         char prev_char = 0;
+        int temp = 0;
         while ((charecter = fgetc(file)) != EOF) {
             // ФЛАГ -n
             if (flags->n_number && (prev_char == 0 || prev_char == '\n')) {
@@ -80,14 +81,56 @@ void cat(flag *flags) {
             if (flags->s_squeeze_blank && (prev_char == 0 || prev_char == '\n')) {
                 if (charecter == '\n')
                     charecter = 0;
-                if (prev_char != 0) 
+                else if (temp != 0 && prev_char != '\n')
                     printf("\n");
+            }
+            temp++;
+            //ФЛАГ -v
+            if (flags->v && (prev_char == 0 || prev_char == '\n')) {
+                flag_v(charecter);
             }
             prev_char = charecter != 0 ? charecter : 0;
             printf("%c", charecter);
         }
         fclose(file);
     }
+}
+
+int flag_v(int charecter) {
+    int decrements[] = {-100, -76, -74, -72, -70, -68, -66, -64, 60, -56, -54, -52, -50, -48, -46, -44};
+    int decimal_original = charecter;
+    if (decimal_original < 0) 
+        decimal_original = -decimal_original;
+    int decimal_original_copy = decimal_original;
+
+    int octal_array_form[100];
+    int octal_regular = 0;
+    int i = 1;
+    // octal array form
+    while (decimal_original_copy > 0) {
+        octal_array_form[i] = decimal_original_copy % 8;
+        decimal_original_copy /= 8;
+
+        i++;
+    }
+    // octal regular form
+    for (int j = i - 1; j > 0; j--) {
+        octal_regular = octal_regular * 10 + octal_array_form[j];
+    }
+
+    int new_octal_regular;
+    new_octal_regular = octal_regular + decrements[128 - decimal_original];
+    int new_decimal = 0;
+    i = 0;
+
+    while (new_octal_regular > 0) {
+        new_decimal = new_decimal + (new_octal_regular % 10) * pow(8, i++);
+        new_octal_regular /= 10;
+    }
+    char* returner = (char *)malloc(35 * sizeof(char));
+    sprintf(returner, "M-^%c", new_decimal);
+
+    return *returner;
 }
 
 void delete_flag (flag *flags) {
